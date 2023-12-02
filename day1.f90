@@ -1,4 +1,4 @@
-program aoc23
+program day1
     implicit none
     character(len = 100):: input
     character :: current
@@ -71,4 +71,4 @@ program aoc23
     end do
 
     write(*, *) running_sum
-end program
+end program day1
