@@ -86,9 +86,6 @@ contains
         over_map = triplet(-1, -1, -1)
         upper_map = triplet(-1, -1, -1)
 
-        print *, first
-        print *, second
-
         if (range_overlap(dest_range(first), src_range(second))) then
             if (second%src_from <= first%dest_from .and. dest_end(first) <= src_end(second)) then
                 overlap_index = first%dest_from - second%src_from
@@ -100,7 +97,6 @@ contains
                 len_used = len_used + second%len
                 upper_map = triplet(dest_end(first) - len_used, first%src_from + len_used, dest_end(first) - src_end(second))
             elseif (first%dest_from < second%src_from .and. dest_end(first) <= src_end(second)) then
-                print *, '!'
                 len_used = second%src_from - first%dest_from
                 lower_map = triplet( first%dest_from, first%src_from, len_used)
                 over_map = triplet(second%dest_from, first%src_from + len_used, first%len - len_used)
@@ -128,11 +124,7 @@ contains
             cert_index = 0
             transformed = .false.
             do j = 1, size(second)
-                print *, "------------------------------------------------"
                 single_combination = map_range(first(i), second(j))
-                print *, single_combination(1)
-                print *, single_combination(2)
-                print *, single_combination(3)
                 ! Always occurs with the following if statement being true
                 if (single_combination(1)%src_from /= -1) then
                     pot_index = pot_index + 1
@@ -226,7 +218,9 @@ program day5
     type(triplet), allocatable :: seed_mappings(:)
     type(triplet), allocatable :: seed_soil(:), soil_fert(:), fert_watr(:), watr_ligt(:), ligt_temp(:), temp_humd(:), humd_locn(:)
     type(triplet), allocatable :: combined(:)
+    type(triplet) :: temp
     integer(int64) :: count, i, j, temp1, temp2, range_info(3)
+    integer(int64) :: part2
 
     open(10, file='day5.txt', status='old')
     read (10, '(A)') line
@@ -267,27 +261,21 @@ program day5
     print *, "Part 1: ", minval(mapped)
 
     combined = map_ranges(seed_mappings, seed_soil)
-    print *, 'Seed Soil: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, soil_fert)
-    print *, 'Soil Fertiliser: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, fert_watr)
-    print *, 'Fertiliser Water: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, watr_ligt)
-    print *, 'Water Light: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, ligt_temp)
-    print *, 'Light Temp: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, temp_humd)
-    print *, 'Temp Humidity: '
-    print '(I3 I3 I3)', combined
     combined = map_ranges(combined, humd_locn)
-    print *, 'Humidity Location: '
-    print '(I3 I3 I3)', combined
 
-    print *, "Part 2: ", apply_mappings(combined, [82_int64])
+    part2 = 100000000000000_int64 ! Arbitrary but larger than our minimum
+    do i = 1, size(combined)
+        temp = combined(i)
+        if (temp%dest_from < part2) then
+            part2 = temp%dest_from
+        end if
+    end do
+
+    print *, "Part 2: ", part2
 
 end program day5
