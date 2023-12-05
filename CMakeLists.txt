@@ -9,3 +9,5 @@ add_executable(day2 day2.f90)
 add_executable(day3 day3.f90)
 
 add_executable(day4 day4.f90)
+
+add_executable(day5 day5.f90)
