@@ -27,7 +27,7 @@ program day6
     integer(int64), allocatable :: times(:), distance_record(:), successful_times(:)
     integer(int64), allocatable :: possible_times(:), distances(:)
     integer(int64) :: kerned_time, kerned_distance
-    integer :: entries, io_res, i
+    integer :: entries, io_res, i, j
     integer(int64) :: beginning, end, rate
 
     call system_clock(beginning, rate)
@@ -53,7 +53,7 @@ program day6
     allocate(successful_times(entries))
 
     do i = 1, size(times)
-        possible_times = [( i, i=0, times(i) )]
+        possible_times = [( j, j=0, times(i) )]
         distances = (times(i) - possible_times) * possible_times
         successful_times(i) = count(distances > distance_record(i))
     end do
