@@ -222,6 +222,8 @@ program day5
     integer(int64) :: count, i, j, temp1, temp2, range_info(3)
     integer(int64) :: part2
 
+    integer(int64) :: beginning, end, rate
+
     open(10, file='day5.txt', status='old')
     read (10, '(A)') line
     scratch_line = trim(line(8:)) ! To remove the seeds: prefix
@@ -260,6 +262,8 @@ program day5
 
     print *, "Part 1: ", minval(mapped)
 
+    call system_clock(beginning, rate)
+
     combined = map_ranges(seed_mappings, seed_soil)
     combined = map_ranges(combined, soil_fert)
     combined = map_ranges(combined, fert_watr)
@@ -276,6 +280,10 @@ program day5
         end if
     end do
 
+    call system_clock(end)
+
     print *, "Part 2: ", part2
+    print *, "Elapsed Time for Part 2: ", (end - beginning), " with one second = ", rate
+
 
 end program day5
