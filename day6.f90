@@ -19,12 +19,14 @@ end module day6helper
 
 program day6
     use day6helper
+    use iso_fortran_env, only: int64
     implicit none
 
     character(len=256) :: cur_line ! 256 is arbitrary but larger than we need
     character(len=:), allocatable :: scratch
-    integer, allocatable :: times(:), distance_record(:), successful_times(:)
-    integer, allocatable :: possible_times(:), distances(:)
+    integer(int64), allocatable :: times(:), distance_record(:), successful_times(:)
+    integer(int64), allocatable :: possible_times(:), distances(:)
+    integer(int64) :: kerned_time, kerned_distance
     integer :: entries, io_res, i
 
     open(10, file="day6.txt", status="old")
@@ -50,5 +52,17 @@ program day6
     end do
     print *, "Part 1: ", product(successful_times)
 
+    kerned_time = 0
+    kerned_distance = 0
+    do i = 1, size(times)
+        kerned_time = kerned_time * (10 ** ceiling(log10(real(times(i)))))
+        kerned_time = kerned_time + times(i)
+        kerned_distance = kerned_distance * (10 ** ceiling(log10(real(distance_record(i)))))
+        kerned_distance = kerned_distance + distance_record(i)
+    end do
+
+    possible_times = [( i, i=0, kerned_time )]
+    distances = (kerned_time - possible_times) * possible_times
+    print *, "Part 2: ", int8(count(distances > kerned_distance))
 
 end program day6
