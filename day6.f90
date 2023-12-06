@@ -28,6 +28,9 @@ program day6
     integer(int64), allocatable :: possible_times(:), distances(:)
     integer(int64) :: kerned_time, kerned_distance
     integer :: entries, io_res, i
+    integer(int64) :: beginning, end, rate
+
+    call system_clock(beginning, rate)
 
     open(10, file="day6.txt", status="old")
     read(10, '(A)', iostat=io_res) cur_line
@@ -43,6 +46,10 @@ program day6
 
     close(10)
 
+    call system_clock(end)
+    print *, "File IO took ", end - beginning, " clock ticks, with ", rate, " clock ticks/s"
+    call system_clock(beginning)
+
     allocate(successful_times(entries))
 
     do i = 1, size(times)
@@ -51,6 +58,10 @@ program day6
         successful_times(i) = count(distances > distance_record(i))
     end do
     print *, "Part 1: ", product(successful_times)
+
+    call system_clock(end)
+    print *, "Part 1 took ", end - beginning, " clock ticks, with ", rate, " clock ticks/s"
+    call system_clock(beginning)
 
     kerned_time = 0
     kerned_distance = 0
@@ -64,5 +75,8 @@ program day6
     possible_times = [( i, i=0, kerned_time )]
     distances = (kerned_time - possible_times) * possible_times
     print *, "Part 2: ", int8(count(distances > kerned_distance))
+
+    call system_clock(end)
+    print *, "Part 2 took ", end - beginning, " clock ticks, with ", rate, " clock ticks/s"
 
 end program day6
