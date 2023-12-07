@@ -15,3 +15,4 @@ add_executable(day5 day5.f90)
 add_executable(day6 day6.f90)
 
 add_executable(day7 day7.f90)
+add_compile_options(-ggdb)
