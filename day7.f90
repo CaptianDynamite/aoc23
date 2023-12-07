@@ -169,11 +169,14 @@ end module day7helper
 
 program day7
     use day7helper
+    use iso_fortran_env, only: int64
     implicit none
     type(hand), allocatable :: hands(:)
     integer :: iostat, i, hand_count
     integer :: part1, part2
+    integer(int64) :: begin, end, rate
 
+    call system_clock(begin, end)
     open(17, file='day7.txt', status='old')
     iostat = 0
     hand_count = 0
@@ -186,20 +189,27 @@ program day7
     rewind(17)
     read (17, *, iostat=iostat) hands
     close(17)
+    call system_clock(end)
+    print *, "Reading data took ", end - begin, " cycles. 1 Second is ", rate, " cycles"
 
+    call system_clock(begin, end)
     call sort_hands(hands, ruleset1)
     part1 = 0
     do i = 1, size(hands)
         part1 = part1 + i * hands(i)%bid
     end do
     print *, "Part 1: ", part1
+    call system_clock(end)
+    print *, "Part 1 took ", end - begin, " cycles. 1 Second is ", rate, " cycles"
 
+    call system_clock(begin, end)
     call sort_hands(hands, ruleset2)
-    print '(A5 I4)', hands
     part2 = 0
     do i = 1, size(hands)
         part2 = part2 + i * hands(i)%bid
     end do
     print *, "Part 2: ", part2
+    call system_clock(end)
+    print *, "Part 1 took ", end - begin, " cycles. 1 Second is ", rate, " cycles"
 
 end program day7
