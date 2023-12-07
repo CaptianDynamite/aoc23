@@ -11,7 +11,7 @@ module day7helper
         procedure :: equal
     end type hand
 
-    enum, bind(c) !TODO find out why bind(c) is required
+    enum, bind(c)
         enumerator :: high = 1
         enumerator :: one = 2
         enumerator :: two = 3
@@ -21,9 +21,15 @@ module day7helper
         enumerator :: five = 7
     endenum
 
+    enum, bind(c)
+        enumerator :: ruleset1
+        enumerator :: ruleset2
+    end enum
+
 contains
-    subroutine sort_hands(hands)
+    subroutine sort_hands(hands, ruleset)
         type(hand), intent(inout) :: hands(:)
+        integer, intent(in) :: ruleset
         type(hand) :: copy_hands(size(hands))
         integer :: i, j, comp
         type(hand) :: cur
@@ -33,7 +39,7 @@ contains
             placed = .false.
             do j = 1, i-1
                 if (.not. copy_hands(j)%equal(cur)) then
-                    comp = cur%compare(copy_hands(j))
+                    comp = cur%compare(copy_hands(j), ruleset)
                     if (comp <= 0) then
                         copy_hands(j + 1:i) = copy_hands(j:i-1)
                         copy_hands(j) = cur
@@ -49,31 +55,36 @@ contains
         hands = copy_hands
     end subroutine
 
-    function compare(self, to) result(equal)
-        class(hand), intent(in) :: self
-        class(hand), intent(in) :: to
+    function compare(self, to, ruleset) result(equal)
+        class(hand), intent(in) :: self, to
+        integer, intent(in) :: ruleset
         integer :: equal
-        if (self%hand_type() == to%hand_type()) then
-            if (val_compare(self%hand, to%hand) == -1) then
+        if (self%hand_type(ruleset) == to%hand_type(ruleset)) then
+            if (val_compare(self%hand, to%hand, ruleset) == -1) then
                 equal = -1
-            else if (val_compare(self%hand, to%hand) == 0) then
+            else if (val_compare(self%hand, to%hand, ruleset) == 0) then
                 equal = 0
             else
                 equal = 1
             end if
-        elseif (self%hand_type() < to%hand_type()) then
+        elseif (self%hand_type(ruleset) < to%hand_type(ruleset)) then
             equal = -1
         else
             equal = 1
         end if
     end function compare
 
-    pure function val_compare(vals1, vals2) result(val)
+    function val_compare(vals1, vals2, ruleset) result(val)
         character(len=*), intent(in) :: vals1, vals2
+        integer, intent(in) :: ruleset
         integer :: val
         integer :: i, j, k
         character :: ordering(13)
-        ordering = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
+        if (ruleset == ruleset1) then
+            ordering = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
+        else
+            ordering = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J']
+        end if
         outer: do i = 1, len(vals1)
             next: do j = 1, size(ordering)
                 do k = 1, size(ordering)
@@ -94,19 +105,25 @@ contains
         end do outer
     end function val_compare
 
-    function hand_type(self) result(type)
+    function hand_type(self, ruleset) result(type)
         class(hand), intent(in) :: self
+        integer, intent(in) :: ruleset
         integer :: type
-        integer :: seen, count(len(self%hand))
+        integer :: seen, count(len(self%hand)), joker_seen
         integer :: i, j
         logical :: found
         character :: cur, seen_order(len(self%hand))
         count = 0
         seen = 0
         seen_order = '\0'
+        joker_seen = 0
         do i = 1, len(self%hand)
             cur = self%hand(i:i)
             found = .false.
+            if (ruleset == ruleset2 .and. cur == 'J') then
+                joker_seen = joker_seen + 1
+                cycle
+            end if
             do j = 1, seen
                 if (cur == seen_order(j)) then
                     count(j) = count(j) + 1
@@ -121,16 +138,16 @@ contains
             end if
         end do
 
-        if (seen == 1) then
+        if (seen == 1 .or. seen == 0) then
             type = five
         elseif (seen == 2) then
-            if (any(count == 4)) then
+            if (any(count + joker_seen == 4)) then
                 type = four
             else
                 type = full
             end if
         elseif (seen == 3) then
-            if (any(count == 3)) then
+            if (any(count + joker_seen == 3)) then
                 type = three
             else
                 type = two
@@ -155,7 +172,7 @@ program day7
     implicit none
     type(hand), allocatable :: hands(:)
     integer :: iostat, i, hand_count
-    integer :: part1
+    integer :: part1, part2
 
     open(17, file='day7.txt', status='old')
     iostat = 0
@@ -170,12 +187,19 @@ program day7
     read (17, *, iostat=iostat) hands
     close(17)
 
-    call sort_hands(hands)
-    print '(A I4)', hands
+    call sort_hands(hands, ruleset1)
     part1 = 0
     do i = 1, size(hands)
         part1 = part1 + i * hands(i)%bid
     end do
     print *, "Part 1: ", part1
+
+    call sort_hands(hands, ruleset2)
+    print '(A5 I4)', hands
+    part2 = 0
+    do i = 1, size(hands)
+        part2 = part2 + i * hands(i)%bid
+    end do
+    print *, "Part 2: ", part2
 
 end program day7
