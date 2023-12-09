@@ -23,7 +23,9 @@ program day9
     character(len=512) :: cur_line
     integer, allocatable :: seq(:), num_derivs(:, :)
     integer :: i, j, k, iostat, line_count, part1, part2
+    integer(int64) :: begin, end, rate
 
+    call system_clock(begin, rate)
     open(19, file='day9.txt', status='old')
     part1 = 0
     part2 = 0
@@ -52,8 +54,10 @@ program day9
         deallocate(num_derivs)
         deallocate(seq)
     end do
+    close(19)
     print *, "Part 1: ", part1
     print *, "Part 2: ", part2
-    close(19)
+    call system_clock(end)
+    print *, "Runtime ", end - begin, " cycles, where ", rate, " cycles/sec"
 
 end program day9
