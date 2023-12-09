@@ -17,3 +17,5 @@ add_executable(day6 "Day 1 - 7/day6.f90")
 add_executable(day7 "Day 1 - 7/day7.f90")
 
 add_executable(day8 "Day 8 - 14/day8.f90")
+
+add_executable(day9 "Day 8 - 14/day9.f90")
