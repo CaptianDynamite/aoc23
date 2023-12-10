@@ -9,6 +9,12 @@ module day10helper
         enumerator :: from_west = 4
     end enum
 
+    enum, bind(C)
+        enumerator :: outside = 0
+        enumerator :: inside = 1
+        enumerator :: pipe = 2
+    end enum
+
     type position
         integer :: x, y
     end type position
@@ -118,12 +124,14 @@ program day10
 
     character(len=512) :: cur_line
     type(node), allocatable :: grid(:, :)
+    integer, allocatable :: part2_grid(:, :)
     type(position) :: start_pos
-    integer :: line_no, iostat, i, j, seen
+    integer :: line_no, iostat, i, j, seen, part2_odd_even, part2
     integer :: cur_direction(2)
     type(position) :: cur_position(2), temp_pos
     integer :: path_length(2)
     type(node) :: temp, start_node
+    character :: start_pos_equiv
 
     open(20, file='day10.txt', status='old')
     iostat = 0
@@ -133,6 +141,8 @@ program day10
         line_no = line_no + 1
     end do
     allocate(grid(len(trim(cur_line)), line_no))
+    allocate(part2_grid(len(trim(cur_line)), line_no))
+    part2_grid = outside
     rewind(20)
     do i = 1, line_no
         read(20, '(A)', iostat=iostat) cur_line
@@ -167,25 +177,41 @@ program day10
     temp = get_node(grid, temp_pos)
     if (.not. position_equal(temp%west, position(-1, -1))) then
         seen = seen + 1
-        cur_direction(seen) = from_east
+        cur_direction(seen) = from_west
         cur_position(seen) = temp_pos
     end if
     temp_pos = start_node%west
     temp = get_node(grid, temp_pos)
     if (.not. position_equal(temp%east, position(-1, -1))) then
         seen = seen + 1
-        cur_direction(seen) = from_west
+        cur_direction(seen) = from_east
         cur_position(seen) = temp_pos
     end if
 
-    path_length = 1
+    if (all(cur_direction == [from_south, from_north])) then
+        start_pos_equiv = '|'
+    elseif (all(cur_direction == [from_north, from_east])) then
+        start_pos_equiv = '7'
+    elseif (all(cur_direction == [from_north, from_west])) then
+        start_pos_equiv = 'F'
+    elseif (all(cur_direction == [from_south, from_east])) then
+        start_pos_equiv = 'J'
+    elseif (all(cur_direction == [from_south, from_west])) then
+        start_pos_equiv = 'L'
+    elseif (all(cur_direction == [from_west, from_east])) then
+        start_pos_equiv = '-'
+    end if
 
+    grid(start_pos%x, start_pos%y) = create_node(start_pos_equiv, start_pos, position(size(grid(:, i)), size(grid(j, :))))
+
+    part2_grid(start_pos%x, start_pos%y) = pipe
+    part2_grid(cur_position(1)%x, cur_position(1)%y) = pipe
+    part2_grid(cur_position(2)%x, cur_position(2)%y) = pipe
+
+    path_length = 1
     do while (.not. any(position_equal(cur_position, start_pos)))
+        path_length = path_length + 1
         do i = 1, size(cur_position)
-            if (position_equal(cur_position(i), position(-1, -1))) then
-                cycle
-            end if
-            path_length(i) = path_length(i) + 1
             temp = get_node(grid, cur_position(i))
             cur_direction(i) = not_null_direction(temp, cur_direction(i))
             if (cur_direction(i) == from_north) then
@@ -196,12 +222,34 @@ program day10
                 cur_position(i) = temp%west
             elseif (cur_direction(i) == from_west) then
                 cur_position(i) = temp%east
-            else
-                cur_position(i) = position(-1, -1)
-                path_length(i) = 0
             end if
+
+            part2_grid(cur_position(i)%x, cur_position(i)%y) = pipe
         end do
     end do
     print *, "Part 1: ",  maxval(path_length / 2)
+
+    part2 = 0
+    do i = 1, size(part2_grid(1, :))
+        part2_odd_even = 0
+        do j = 1, size(part2_grid(:, 1))
+            if (part2_grid(j, i) == pipe) then
+                temp = grid(j, i)
+                if (.not. position_equal(temp%north, position(-1, -1))) then
+                    part2_odd_even = part2_odd_even + 1
+                end if
+            else
+                if (mod(part2_odd_even, 2) == 1) then
+                    part2 = part2 + 1
+                end if
+            end if
+        end do
+    end do
+
+    where (part2_grid == pipe)
+        part2_grid = outside
+    end where
+
+    print *, "Part 2: ", part2
 
 end program day10
