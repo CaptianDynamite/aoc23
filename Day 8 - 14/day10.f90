@@ -120,6 +120,7 @@ end module day10helper
 
 program day10
     use day10helper
+    use iso_fortran_env, only: int64
     implicit none
 
     character(len=512) :: cur_line
@@ -132,7 +133,9 @@ program day10
     integer :: path_length(2)
     type(node) :: temp, start_node
     character :: start_pos_equiv
+    integer(int64) :: begin, end, rate
 
+    call system_clock(begin, rate)
     open(20, file='day10.txt', status='old')
     iostat = 0
     line_no = 0
@@ -153,9 +156,11 @@ program day10
             grid(j, i) = create_node(cur_line(j:j), position(j, i), position(size(grid(:, i)), size(grid(j, :))))
         end do
     end do
-
     close(20)
+    call system_clock(end)
+    print *, "File processing took: ", end - begin, " cycles. Where there is ", rate, " cycles/s"
 
+    call system_clock(begin)
     seen = 0
     start_node = get_node(grid, start_pos)
 
@@ -228,7 +233,10 @@ program day10
         end do
     end do
     print *, "Part 1: ",  maxval(path_length / 2)
+    call system_clock(end)
+    print *, "Part 1 took: ", end - begin, " cycles. Where there is ", rate, " cycles/s"
 
+    call system_clock(begin)
     part2 = 0
     do i = 1, size(part2_grid(1, :))
         part2_odd_even = 0
@@ -251,5 +259,7 @@ program day10
     end where
 
     print *, "Part 2: ", part2
+    call system_clock(end)
+    print *, "Part 2 took: ", end - begin, " cycles. Where there is ", rate, " cycles/s"
 
 end program day10
