@@ -35,7 +35,9 @@ program day11
     integer :: iostat, i, j, lines, cur_x, cur_y, cx2, cy2, gal_count, cur_gal
     integer :: part1
     integer(int64) :: part2
+    integer(int64) :: begin, end, rate
 
+    call system_clock(begin, rate)
     open(21, file='day11.txt', status='old')
     iostat = 0
     lines = 0
@@ -46,6 +48,7 @@ program day11
         end if
         lines = lines + 1
     end do
+
     allocate(column_empty(len(trim(cur_line))))
     column_empty(:) = .true.
     allocate(row_empty(lines))
@@ -57,9 +60,10 @@ program day11
         row_empty(i) = all(str_element_cmp(trim(cur_line), '.'))
         gal_count = gal_count + count(str_element_cmp(trim(cur_line), '#'))
     end do
-    rewind(21)
     allocate(galaxies(gal_count))
     allocate(galaxies_pt2(gal_count))
+
+    rewind(21)
     cur_y = 0
     cy2 = 0
     cur_gal = 0
@@ -103,4 +107,6 @@ program day11
     print *, "Part 1: ", part1
     print *, "Part 2: ", part2
 
+    call system_clock(end)
+    print *, "Program took ", end - begin, " cycles, where there are ", rate, " cycles/s"
 end program day11
