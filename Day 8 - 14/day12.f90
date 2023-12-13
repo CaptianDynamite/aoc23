@@ -116,6 +116,5 @@ program day12
         deallocate(contig_runs)
     end do
     close(22)
-
-
+    
 end program day12
