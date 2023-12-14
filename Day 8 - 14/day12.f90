@@ -58,8 +58,11 @@ contains
                         mod_runs = runs(i:)
                         mod_runs(1) = view(cur_run%start + j + contig(1), cur_run%end)
                     end if
+
                     if (size(contig) == 1) then
                         count = count + 1
+                    elseif (size(mod_runs) == 0) then
+                        exit
                     else
                         call arrangement_count(str, mod_runs, contig(2:), map, temp)
                         count = count + temp
@@ -74,8 +77,11 @@ contains
                         mod_runs = runs(i:)
                         mod_runs(1) = view(cur_run%start + j + contig(1), cur_run%end)
                     end if
+
                     if (size(contig) == 1) then
                         count = count + 1
+                    elseif (size(mod_runs) == 0) then
+                        exit
                     else
                         call arrangement_count(str, mod_runs, contig(2:), map, temp)
                         count = count + temp
@@ -161,9 +167,11 @@ contains
         str_view = str(v%start : v%end)
         num = 0
         do i = 1, len(str_view)
-            num = num * 2
+            num = num * 3
             if (str_view(i:i) == '?') then
                 num = num + 1
+            elseif (str_view(i:i) == '#') then
+                num = num + 2
             end if
         end do
     end function cvt_view_to_num

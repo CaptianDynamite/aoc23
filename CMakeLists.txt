@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.10.2)
 project(aoc23 Fortran)
 
 enable_language(Fortran)
@@ -27,3 +27,4 @@ add_executable(day11 "Day 8 - 14/day11.f90")
 add_executable(day12 "Day 8 - 14/day12.f90")
 
 add_executable(day13 "Day 8 - 14/day13.f90")
+add_compile_options(-g)
