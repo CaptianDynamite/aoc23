@@ -53,7 +53,9 @@ program day14
     integer, allocatable :: p1_grid(:, :), p2_grid(:, :)
     integer :: weight_hist(1000) ! Longer than we need
     integer :: iostat, cols, rows, i, j, k, cycle, length, cyclic_len, cyclic_offset
+    integer(int64) :: begin, end, rate
 
+    call system_clock(begin, rate)
     open(24, file='day14.txt', status='old')
     cols = 0
     rows = 0
@@ -83,6 +85,9 @@ program day14
         end do
     end do
     close(24)
+    call system_clock(end)
+    print *, "Data reading took: ", end - begin, " cycles. Where there are ", rate, "cycles/s"
+    call system_clock(begin)
 
     p2_grid = p1_grid
 
@@ -97,6 +102,10 @@ program day14
         end do
     end do
     print *, 'Part 1: ', weight(p1_grid)
+
+    call system_clock(end)
+    print *, "Part 1 took: ", end - begin, " cycles. Where there are ", rate, "cycles/s"
+    call system_clock(begin)
 
     outer: do cycle = 1, size(weight_hist)
         do i = 2, rows
@@ -150,5 +159,8 @@ program day14
     end do outer
 
     print *, "Part 2: ", weight_hist(cyclic_offset + mod(1000000000 - cyclic_offset, cyclic_len))
+
+    call system_clock(end)
+    print *, "Part 2 took: ", end - begin, " cycles. Where there are ", rate, "cycles/s"
 
 end program day14
