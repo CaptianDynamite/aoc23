@@ -27,6 +27,7 @@ add_executable(day11 "Day 8 - 14/day11.f90")
 add_executable(day12 "Day 8 - 14/day12.f90")
 
 add_executable(day13 "Day 8 - 14/day13.f90")
-add_compile_options(-g)
 
 add_executable(day14 "Day 8 - 14/day14.f90")
+
+add_executable(day15 "Day 15 - 21/day15.f90")
